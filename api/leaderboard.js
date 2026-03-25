@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -8,9 +8,9 @@ export default async function handler(req, res) {
   const token = process.env.KV_REST_API_TOKEN;
 
   async function redis(cmd) {
-    const r = await fetch(`${url}`, {
+    const r = await fetch(url, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
       body: JSON.stringify(cmd)
     });
     return r.json();
@@ -22,9 +22,11 @@ export default async function handler(req, res) {
       const entries = [];
       const result = data.result || [];
       for (let i = 0; i < result.length; i += 2) {
-        const entry = JSON.parse(result[i]);
-        entry.score = parseFloat(result[i + 1]);
-        entries.push(entry);
+        try {
+          const entry = JSON.parse(result[i]);
+          entry.score = parseFloat(result[i + 1]);
+          entries.push(entry);
+        } catch(e) {}
       }
       return res.status(200).json(entries);
     }
@@ -50,4 +52,4 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
-}
+};
