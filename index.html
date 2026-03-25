@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Exam Study - Nova SBE 2767</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#2563eb;--primary-light:#dbeafe;--success:#16a34a;--success-light:#dcfce7;--danger:#dc2626;--danger-light:#fee2e2;--warning:#f59e0b;--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-300:#cbd5e1;--gray-400:#94a3b8;--gray-500:#64748b;--gray-600:#475569;--gray-700:#334155;--gray-800:#1e293b;--gray-900:#0f172a}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--gray-50);color:var(--gray-800);line-height:1.6;min-height:100vh}
+.container{max-width:840px;margin:0 auto;padding:16px}
+h1{font-size:1.8rem;font-weight:700}
+h2{font-size:1.4rem;font-weight:600}
+h3{font-size:1.1rem;font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 24px;border-radius:8px;font-size:1rem;font-weight:500;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-secondary{background:var(--gray-200);color:var(--gray-700)}.btn-secondary:hover{background:var(--gray-300)}
+.btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#15803d}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#b91c1c}
+.btn-outline{background:transparent;border:2px solid var(--gray-300);color:var(--gray-600)}.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:6px 14px;font-size:.875rem}
+.btn-lg{padding:14px 32px;font-size:1.1rem}
+.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.hidden{display:none!important}
+
+/* Home Screen */
+#home-screen{padding-top:40px;text-align:center}
+.home-title{margin-bottom:8px}
+.home-subtitle{color:var(--gray-500);margin-bottom:32px;font-size:1rem}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px}
+.mode-card{cursor:pointer;text-align:left;transition:all .2s;border:2px solid transparent}
+.mode-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 4px 12px rgba(37,99,235,.15)}
+.mode-card h2{margin-bottom:8px;color:var(--primary)}
+.mode-card ul{list-style:none;color:var(--gray-600);font-size:.9rem}
+.mode-card ul li{padding:3px 0}
+.mode-card ul li::before{content:"";display:inline-block;width:6px;height:6px;background:var(--primary);border-radius:50%;margin-right:8px;vertical-align:middle}
+.scoring-info{text-align:center;color:var(--gray-600);font-size:.9rem}
+.scoring-info .card{display:inline-block;text-align:left}
+.scoring-grid{display:flex;gap:24px;justify-content:center;margin-top:8px;font-weight:600}
+.scoring-grid .pos{color:var(--success)}.scoring-grid .neg{color:var(--danger)}.scoring-grid .neu{color:var(--gray-400)}
+
+/* Topic Select */
+#topic-select{margin-bottom:16px}
+#topic-select select{padding:8px 12px;border-radius:8px;border:2px solid var(--gray-200);font-size:.95rem;width:100%;max-width:300px}
+
+/* Quiz Screen */
+.quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.timer{font-size:1.2rem;font-weight:700;font-variant-numeric:tabular-nums}
+.timer.warning{color:var(--danger);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.progress-bar-container{background:var(--gray-200);border-radius:99px;height:8px;margin-bottom:16px;overflow:hidden}
+.progress-bar{height:100%;background:var(--primary);border-radius:99px;transition:width .3s}
+.progress-info{display:flex;justify-content:space-between;margin-bottom:16px;font-size:.875rem;color:var(--gray-500)}
+.question-text{font-size:1.05rem;font-weight:500;margin-bottom:20px;line-height:1.7}
+.question-num{color:var(--primary);font-weight:700}
+.topic-badge{display:inline-block;background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:99px;font-size:.75rem;font-weight:600;margin-bottom:12px}
+.options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.option{padding:14px 18px;border:2px solid var(--gray-200);border-radius:10px;cursor:pointer;transition:all .15s;font-size:.95rem;line-height:1.5;user-select:none}
+.option:hover:not(.disabled){border-color:var(--primary);background:var(--gray-50)}
+.option.selected{border-color:var(--primary);background:var(--primary-light)}
+.option.correct{border-color:var(--success);background:var(--success-light)}
+.option.wrong{border-color:var(--danger);background:var(--danger-light)}
+.option.disabled{cursor:default;opacity:.85}
+.option.disabled:hover{border-color:var(--gray-200);background:transparent}
+.option.disabled.correct:hover{border-color:var(--success);background:var(--success-light)}
+.option.disabled.wrong:hover{border-color:var(--danger);background:var(--danger-light)}
+.explanation{background:var(--gray-50);border-left:4px solid var(--primary);padding:16px;border-radius:0 8px 8px 0;margin-bottom:20px;font-size:.9rem;line-height:1.7;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.quiz-nav-btns{display:flex;gap:8px}
+
+/* Question Navigator */
+.q-navigator{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;padding:12px;background:#fff;border-radius:10px;border:1px solid var(--gray-200)}
+.q-dot{width:32px;height:32px;border-radius:6px;border:2px solid var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;color:var(--gray-500)}
+.q-dot:hover{border-color:var(--primary)}
+.q-dot.current{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+.q-dot.answered{border-color:var(--success);background:var(--success-light);color:var(--success)}
+.q-dot.skipped{border-color:var(--gray-300);background:var(--gray-100);color:var(--gray-400)}
+
+/* Review Screen */
+.results-summary{text-align:center;margin-bottom:24px}
+.final-score{font-size:3rem;font-weight:800;color:var(--primary);margin:8px 0}
+.score-detail{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.score-box{padding:12px;border-radius:8px;text-align:center}
+.score-box.correct-box{background:var(--success-light);color:var(--success)}
+.score-box.wrong-box{background:var(--danger-light);color:var(--danger)}
+.score-box.skip-box{background:var(--gray-100);color:var(--gray-500)}
+.score-box .num{font-size:1.5rem;font-weight:700}
+.score-box .label{font-size:.8rem}
+.strategy-tip{background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:12px 16px;margin:16px 0;font-size:.9rem;color:#92400e}
+.topic-breakdown{margin:20px 0}
+.topic-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--gray-100);font-size:.9rem}
+.topic-row .name{flex:1;min-width:120px}
+.topic-row .bar-bg{flex:2;background:var(--gray-200);border-radius:4px;height:12px;overflow:hidden}
+.topic-row .bar-fill{height:100%;border-radius:4px;transition:width .5s}
+.topic-row .stat{width:60px;text-align:right;font-weight:600;font-size:.8rem}
+.review-question{border-bottom:1px solid var(--gray-200);padding:20px 0}
+.review-question:last-child{border-bottom:none}
+.review-answer{padding:8px 12px;border-radius:6px;margin:4px 0;font-size:.9rem}
+.review-answer.your-wrong{background:var(--danger-light);border-left:3px solid var(--danger)}
+.review-answer.correct-ans{background:var(--success-light);border-left:3px solid var(--success)}
+.review-explanation{margin-top:8px;padding:10px;background:var(--gray-50);border-radius:6px;font-size:.85rem;color:var(--gray-600);line-height:1.6}
+
+/* Modal */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:100;animation:fadeIn .2s}
+.modal{background:#fff;border-radius:12px;padding:24px;max-width:420px;width:90%;text-align:center}
+.modal h3{margin-bottom:12px}
+.modal p{color:var(--gray-600);margin-bottom:20px;font-size:.95rem}
+.modal-btns{display:flex;gap:10px;justify-content:center}
+
+@media(max-width:640px){
+.mode-cards{grid-template-columns:1fr}
+.scoring-grid{flex-direction:column;gap:8px}
+.quiz-header{font-size:.9rem}
+.timer{font-size:1rem}
+h1{font-size:1.4rem}
+.q-dot{width:28px;height:28px;font-size:.65rem}
+.container{padding:10px}
+}
+</style>
+</head>
+<body>
+<div class="container" id="app">
+<!-- Home Screen -->
+<div id="home-screen">
+<h1 class="home-title">ML Exam Study</h1>
+<p class="home-subtitle">Nova SBE - 2767 Machine Learning - Exam Prep</p>
+<div class="mode-cards">
+<div class="card mode-card" onclick="startExam()">
+<h2>Exam Simulation</h2>
+<ul>
+<li>40 random questions</li>
+<li>70-minute timer</li>
+<li>No feedback until end</li>
+<li>Realistic exam scoring</li>
+</ul>
+</div>
+<div class="card mode-card" onclick="showTopicSelect()">
+<h2>Practice Mode</h2>
+<ul>
+<li>All 84 questions</li>
+<li>Filter by topic</li>
+<li>Instant feedback</li>
+<li>Detailed explanations</li>
+</ul>
+</div>
+</div>
+<div class="scoring-info">
+<div class="card">
+<strong>Exam Scoring Rules</strong>
+<div class="scoring-grid">
+<span class="pos">Correct: +2.5</span>
+<span class="neg">Wrong: -0.5</span>
+<span class="neu">Skip: 0</span>
+</div>
+<p style="margin-top:8px;font-size:.85rem">40 questions | 70 min | 100 pts max | 5 options (E = None of the above)</p>
+</div>
+</div>
+</div>
+
+<!-- Topic Select (shown before practice) -->
+<div id="topic-select-screen" class="hidden">
+<h2 style="margin-bottom:16px">Choose Topic</h2>
+<div style="display:flex;flex-direction:column;gap:8px" id="topic-buttons"></div>
+<button class="btn btn-secondary" style="margin-top:16px" onclick="goHome()">Back</button>
+</div>
+
+<!-- Quiz Screen -->
+<div id="quiz-screen" class="hidden">
+<div class="quiz-header">
+<button class="btn btn-sm btn-outline" onclick="confirmExit()">Exit</button>
+<div>
+<span id="mode-label" style="font-weight:600"></span>
+</div>
+<div class="timer" id="timer"></div>
+</div>
+<div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
+<div class="progress-info">
+<span id="progress-text"></span>
+<span id="score-text"></span>
+</div>
+<div class="q-navigator" id="q-navigator"></div>
+<div class="card" id="question-card">
+<div class="topic-badge" id="q-topic"></div>
+<div class="question-text" id="q-text"></div>
+<div class="options" id="q-options"></div>
+<div class="explanation hidden" id="q-explanation"></div>
+</div>
+<div class="quiz-nav" style="margin-top:16px">
+<button class="btn btn-secondary" id="btn-prev" onclick="prevQuestion()">Previous</button>
+<div class="quiz-nav-btns">
+<button class="btn btn-outline" id="btn-skip" onclick="skipQuestion()">Skip</button>
+<button class="btn btn-primary" id="btn-next" onclick="nextQuestion()">Next</button>
+</div>
+</div>
+<div style="text-align:center;margin-top:16px">
+<button class="btn btn-danger" id="btn-submit" onclick="confirmSubmit()">Submit Exam</button>
+</div>
+</div>
+
+<!-- Review Screen -->
+<div id="review-screen" class="hidden"></div>
+
+<!-- Modal -->
+<div id="modal" class="modal-overlay hidden"></div>
+</div>
+
+<script src="questions.js"></script>
+<script>
+// ============ APP STATE ============
+const AppState = {
+  mode: null,
+  currentQuestions: [],
+  currentIndex: 0,
+  answers: {},
+  practiceRevealed: {},
+  examTimeRemaining: 70 * 60,
+  examTimerInterval: null,
+  currentTopic: null,
+  isReviewMode: false
+};
+
+// ============ CORE FUNCTIONS ============
+function goHome() {
+  clearInterval(AppState.examTimerInterval);
+  AppState.mode = null;
+  AppState.isReviewMode = false;
+  localStorage.removeItem('ml_exam_state');
+  show('home-screen');
+  hide('quiz-screen');
+  hide('review-screen');
+  hide('topic-select-screen');
+}
+
+function showTopicSelect() {
+  hide('home-screen');
+  show('topic-select-screen');
+  const topics = [...new Set(QUESTIONS.map(q => q.topic))];
+  const topicNames = {};
+  QUESTIONS.forEach(q => topicNames[q.topic] = q.topicName);
+  const container = document.getElementById('topic-buttons');
+  container.innerHTML = '';
+  // All topics button
+  const allBtn = document.createElement('button');
+  allBtn.className = 'btn btn-primary btn-lg';
+  allBtn.style.width = '100%';
+  allBtn.textContent = `All Topics (${QUESTIONS.length} questions)`;
+  allBtn.onclick = () => startPractice(null);
+  container.appendChild(allBtn);
+  // Individual topics
+  topics.forEach(t => {
+    const count = QUESTIONS.filter(q => q.topic === t).length;
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-outline btn-lg';
+    btn.style.width = '100%';
+    btn.textContent = `${topicNames[t]} (${count})`;
+    btn.onclick = () => startPractice(t);
+    container.appendChild(btn);
+  });
+}
+
+function startExam() {
+  AppState.mode = 'exam';
+  AppState.currentQuestions = shuffle([...QUESTIONS]).slice(0, 40);
+  AppState.currentIndex = 0;
+  AppState.answers = {};
+  AppState.practiceRevealed = {};
+  AppState.examTimeRemaining = 70 * 60;
+  AppState.isReviewMode = false;
+  hide('home-screen');
+  show('quiz-screen');
+  document.getElementById('mode-label').textContent = 'Exam Simulation';
+  startTimer();
+  renderQuestion();
+  saveState();
+}
+
+function startPractice(topic) {
+  AppState.mode = 'practice';
+  AppState.currentTopic = topic;
+  AppState.currentQuestions = topic ? QUESTIONS.filter(q => q.topic === topic) : [...QUESTIONS];
+  AppState.currentIndex = 0;
+  AppState.answers = {};
+  AppState.practiceRevealed = {};
+  AppState.examTimeRemaining = 0;
+  AppState.isReviewMode = false;
+  hide('home-screen');
+  hide('topic-select-screen');
+  show('quiz-screen');
+  document.getElementById('mode-label').textContent = 'Practice Mode';
+  document.getElementById('timer').textContent = '';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = AppState.currentQuestions[AppState.currentIndex];
+  const total = AppState.currentQuestions.length;
+  const answered = Object.keys(AppState.answers).length;
+
+  // Progress
+  document.getElementById('progress-bar').style.width = ((AppState.currentIndex + 1) / total * 100) + '%';
+  document.getElementById('progress-text').textContent = `Question ${AppState.currentIndex + 1} of ${total}`;
+
+  // Score
+  const score = calcCurrentScore();
+  document.getElementById('score-text').textContent = `Score: ${score.toFixed(1)} | Answered: ${answered}/${total}`;
+
+  // Topic badge
+  document.getElementById('q-topic').textContent = q.topicName;
+
+  // Question text
+  document.getElementById('q-text').innerHTML = `<span class="question-num">Q${AppState.currentIndex + 1}.</span> ${q.question}`;
+
+  // Options
+  const optDiv = document.getElementById('q-options');
+  optDiv.innerHTML = '';
+  const selected = AppState.answers[q.id];
+  const revealed = AppState.practiceRevealed[q.id];
+
+  q.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    if (selected === i) div.classList.add('selected');
+    if (revealed) {
+      div.classList.add('disabled');
+      if (i === q.correct) div.classList.add('correct');
+      if (selected === i && i !== q.correct) div.classList.add('wrong');
+    }
+    div.textContent = opt;
+    if (!revealed) {
+      div.onclick = () => selectAnswer(i);
+    }
+    optDiv.appendChild(div);
+  });
+
+  // Explanation
+  const expDiv = document.getElementById('q-explanation');
+  if (revealed) {
+    expDiv.classList.remove('hidden');
+    expDiv.innerHTML = `<strong>${selected === q.correct ? 'Correct!' : 'Incorrect.'}</strong> ${q.explanation}`;
+  } else {
+    expDiv.classList.add('hidden');
+  }
+
+  // Navigator
+  renderNavigator();
+
+  // Buttons
+  document.getElementById('btn-prev').style.visibility = AppState.currentIndex > 0 ? 'visible' : 'hidden';
+  document.getElementById('btn-next').textContent = AppState.currentIndex < total - 1 ? 'Next' : (AppState.mode === 'exam' ? 'Review' : 'Finish');
+  document.getElementById('btn-submit').classList.toggle('hidden', AppState.mode !== 'exam');
+  document.getElementById('btn-skip').classList.toggle('hidden', revealed === true);
+}
+
+function renderNavigator() {
+  const nav = document.getElementById('q-navigator');
+  nav.innerHTML = '';
+  AppState.currentQuestions.forEach((q, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'q-dot';
+    if (i === AppState.currentIndex) dot.classList.add('current');
+    else if (AppState.answers[q.id] !== undefined) dot.classList.add(AppState.answers[q.id] === null ? 'skipped' : 'answered');
+    dot.textContent = i + 1;
+    dot.onclick = () => { AppState.currentIndex = i; renderQuestion(); };
+    nav.appendChild(dot);
+  });
+}
+
+function selectAnswer(idx) {
+  const q = AppState.currentQuestions[AppState.currentIndex];
+  AppState.answers[q.id] = idx;
+  if (AppState.mode === 'practice') {
+    AppState.practiceRevealed[q.id] = true;
+  }
+  renderQuestion();
+  saveState();
+}
+
+function skipQuestion() {
+  const q = AppState.currentQuestions[AppState.currentIndex];
+  if (AppState.answers[q.id] === undefined) {
+    AppState.answers[q.id] = null;
+  }
+  if (AppState.mode === 'practice') {
+    AppState.practiceRevealed[q.id] = true;
+  }
+  renderQuestion();
+  saveState();
+  if (AppState.currentIndex < AppState.currentQuestions.length - 1) {
+    nextQuestion();
+  }
+}
+
+function nextQuestion() {
+  if (AppState.currentIndex < AppState.currentQuestions.length - 1) {
+    AppState.currentIndex++;
+    renderQuestion();
+  } else {
+    if (AppState.mode === 'exam') confirmSubmit();
+    else showReview();
+  }
+}
+
+function prevQuestion() {
+  if (AppState.currentIndex > 0) {
+    AppState.currentIndex--;
+    renderQuestion();
+  }
+}
+
+function confirmSubmit() {
+  const total = AppState.currentQuestions.length;
+  const answered = Object.values(AppState.answers).filter(a => a !== null && a !== undefined).length;
+  const skipped = Object.values(AppState.answers).filter(a => a === null).length;
+  const unanswered = total - answered - skipped;
+
+  const modal = document.getElementById('modal');
+  modal.classList.remove('hidden');
+  modal.innerHTML = `<div class="modal">
+    <h3>Submit Exam?</h3>
+    <p>Answered: ${answered} | Skipped: ${skipped} | Unanswered: ${unanswered}<br>
+    ${unanswered > 0 ? `<strong>Warning:</strong> ${unanswered} unanswered questions will score 0 points.` : 'All questions accounted for.'}</p>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="document.getElementById('modal').classList.add('hidden')">Cancel</button>
+      <button class="btn btn-danger" onclick="document.getElementById('modal').classList.add('hidden');showReview()">Submit</button>
+    </div>
+  </div>`;
+}
+
+function confirmExit() {
+  const modal = document.getElementById('modal');
+  modal.classList.remove('hidden');
+  modal.innerHTML = `<div class="modal">
+    <h3>Exit Quiz?</h3>
+    <p>Your progress will be lost.</p>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="document.getElementById('modal').classList.add('hidden')">Cancel</button>
+      <button class="btn btn-danger" onclick="document.getElementById('modal').classList.add('hidden');goHome()">Exit</button>
+    </div>
+  </div>`;
+}
+
+// ============ REVIEW ============
+function showReview() {
+  clearInterval(AppState.examTimerInterval);
+  AppState.isReviewMode = true;
+  hide('quiz-screen');
+  show('review-screen');
+  localStorage.removeItem('ml_exam_state');
+
+  const results = calculateResults();
+  const review = document.getElementById('review-screen');
+
+  let topicHTML = '';
+  Object.entries(results.topicBreakdown).forEach(([topic, data]) => {
+    const pct = data.total > 0 ? (data.correct / data.total * 100) : 0;
+    const color = pct >= 70 ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+    topicHTML += `<div class="topic-row">
+      <span class="name">${data.name}</span>
+      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <span class="stat">${data.correct}/${data.total}</span>
+    </div>`;
+  });
+
+  const wrongPenalty = results.wrong * 0.5;
+  const potentialScore = results.finalScore + wrongPenalty;
+
+  let reviewQsHTML = '';
+  AppState.currentQuestions.forEach((q, i) => {
+    const ans = AppState.answers[q.id];
+    const isCorrect = ans === q.correct;
+    const isSkipped = ans === null || ans === undefined;
+    const statusIcon = isSkipped ? '\u23ED' : isCorrect ? '\u2705' : '\u274C';
+    reviewQsHTML += `<div class="review-question">
+      <div class="topic-badge">${q.topicName}</div>
+      <p style="font-weight:500;margin-bottom:8px">${statusIcon} <strong>Q${i+1}.</strong> ${q.question}</p>
+      ${!isSkipped && !isCorrect ? `<div class="review-answer your-wrong">Your answer: ${q.options[ans]}</div>` : ''}
+      <div class="review-answer correct-ans">Correct: ${q.options[q.correct]}</div>
+      <div class="review-explanation">${q.explanation}</div>
+    </div>`;
+  });
+
+  review.innerHTML = `
+    <div class="card results-summary">
+      <h2>Results</h2>
+      <div class="final-score">${results.finalScore.toFixed(1)} / ${results.maxScore.toFixed(1)}</div>
+      <div class="score-detail">
+        <div class="score-box correct-box"><div class="num">${results.correct}</div><div class="label">Correct (+${(results.correct*2.5).toFixed(1)})</div></div>
+        <div class="score-box wrong-box"><div class="num">${results.wrong}</div><div class="label">Wrong (-${wrongPenalty.toFixed(1)})</div></div>
+        <div class="score-box skip-box"><div class="num">${results.skipped}</div><div class="label">Skipped (0)</div></div>
+      </div>
+      ${results.wrong > 0 ? `<div class="strategy-tip">Strategy tip: If you had skipped your ${results.wrong} wrong answer${results.wrong>1?'s':''} instead, your score would have been <strong>${potentialScore.toFixed(1)}</strong> instead of ${results.finalScore.toFixed(1)} (+${wrongPenalty.toFixed(1)} points). Consider skipping questions you're unsure about!</div>` : ''}
+    </div>
+    <div class="card">
+      <h3>Topic Breakdown</h3>
+      <div class="topic-breakdown">${topicHTML}</div>
+    </div>
+    <div style="text-align:center;margin:20px 0">
+      <button class="btn btn-primary" onclick="document.getElementById('review-details').classList.toggle('hidden')">Toggle Detailed Review</button>
+      <button class="btn btn-secondary" onclick="goHome()" style="margin-left:8px">Home</button>
+    </div>
+    <div id="review-details" class="card hidden">${reviewQsHTML}</div>
+  `;
+}
+
+function calculateResults() {
+  let correct = 0, wrong = 0, skipped = 0;
+  const topicBreakdown = {};
+
+  AppState.currentQuestions.forEach(q => {
+    if (!topicBreakdown[q.topic]) topicBreakdown[q.topic] = {name: q.topicName, correct: 0, wrong: 0, skipped: 0, total: 0};
+    topicBreakdown[q.topic].total++;
+
+    const ans = AppState.answers[q.id];
+    if (ans === null || ans === undefined) {
+      skipped++;
+      topicBreakdown[q.topic].skipped++;
+    } else if (ans === q.correct) {
+      correct++;
+      topicBreakdown[q.topic].correct++;
+    } else {
+      wrong++;
+      topicBreakdown[q.topic].wrong++;
+    }
+  });
+
+  return {
+    correct, wrong, skipped,
+    finalScore: correct * 2.5 - wrong * 0.5,
+    maxScore: AppState.currentQuestions.length * 2.5,
+    topicBreakdown
+  };
+}
+
+// ============ TIMER ============
+function startTimer() {
+  updateTimerDisplay();
+  AppState.examTimerInterval = setInterval(() => {
+    AppState.examTimeRemaining--;
+    updateTimerDisplay();
+    if (AppState.examTimeRemaining <= 0) {
+      clearInterval(AppState.examTimerInterval);
+      showReview();
+    }
+    if (AppState.examTimeRemaining % 30 === 0) saveState();
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const mins = Math.floor(AppState.examTimeRemaining / 60);
+  const secs = AppState.examTimeRemaining % 60;
+  const el = document.getElementById('timer');
+  el.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+  el.classList.toggle('warning', AppState.examTimeRemaining < 300);
+}
+
+// ============ UTILITIES ============
+function calcCurrentScore() {
+  let s = 0;
+  AppState.currentQuestions.forEach(q => {
+    const a = AppState.answers[q.id];
+    if (a !== null && a !== undefined) {
+      s += a === q.correct ? 2.5 : -0.5;
+    }
+  });
+  return s;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+
+// ============ PERSISTENCE ============
+function saveState() {
+  if (AppState.mode !== 'exam') return;
+  const data = {
+    mode: AppState.mode,
+    answers: AppState.answers,
+    currentIndex: AppState.currentIndex,
+    examTimeRemaining: AppState.examTimeRemaining,
+    questionIds: AppState.currentQuestions.map(q => q.id),
+    timestamp: Date.now()
+  };
+  localStorage.setItem('ml_exam_state', JSON.stringify(data));
+}
+
+function loadState() {
+  const saved = localStorage.getItem('ml_exam_state');
+  if (!saved) return false;
+  const data = JSON.parse(saved);
+  if (Date.now() - data.timestamp > 2 * 60 * 60 * 1000) {
+    localStorage.removeItem('ml_exam_state');
+    return false;
+  }
+  AppState.mode = data.mode;
+  AppState.answers = data.answers;
+  AppState.currentIndex = data.currentIndex;
+  AppState.examTimeRemaining = data.examTimeRemaining;
+  AppState.practiceRevealed = {};
+  AppState.currentQuestions = data.questionIds.map(id => QUESTIONS.find(q => q.id === id)).filter(Boolean);
+  if (AppState.currentQuestions.length === 0) return false;
+  hide('home-screen');
+  show('quiz-screen');
+  document.getElementById('mode-label').textContent = 'Exam Simulation (Resumed)';
+  startTimer();
+  renderQuestion();
+  return true;
+}
+
+// ============ INIT ============
+window.onload = () => {
+  if (!loadState()) {
+    show('home-screen');
+  }
+};
+</script>
+</body>
+</html>
