@@ -442,8 +442,12 @@ function renderQuestion() {
 
   document.getElementById('progress-bar').style.width = ((AppState.currentIndex + 1) / total * 100) + '%';
   document.getElementById('progress-text').textContent = `Question ${AppState.currentIndex + 1} of ${total}`;
-  const score = calcCurrentScore();
-  document.getElementById('score-text').textContent = `Score: ${score.toFixed(1)} | Answered: ${answered}/${total}`;
+  if (AppState.mode === 'exam') {
+    document.getElementById('score-text').textContent = `Answered: ${answered}/${total}`;
+  } else {
+    const score = calcCurrentScore();
+    document.getElementById('score-text').textContent = `Score: ${score.toFixed(1)} | Answered: ${answered}/${total}`;
+  }
   document.getElementById('q-topic').textContent = q.topicName;
   document.getElementById('q-text').innerHTML = `<span class="question-num">Q${AppState.currentIndex + 1}.</span> ${q.question}`;
 
